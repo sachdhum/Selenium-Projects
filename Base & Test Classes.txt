@@ -1,0 +1,90 @@
+                                                         Base Class
+
+package com.banking.testcases;
+
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+
+import com.banking.utilities.ReadConfig;
+
+public class baseclass 
+{ 
+	ReadConfig rc= new ReadConfig();
+	
+	public String baseurl=rc.getApplicationURL();		
+	public String username=rc.un();
+	public String pwds=rc.pd(); 
+	
+	public static WebDriver driver;
+	
+	
+          public static Logger logger;
+	
+	@BeforeClass 
+	public void setup() 
+	{
+		System.setProperty("webdriver.chrome.driver", "./Drivers/chromedriver.exe");
+		driver=new ChromeDriver();
+		
+		 logger= Logger.getLogger("banking");
+		PropertyConfigurator.configure("Log4j.properties");
+		
+	}
+	
+	@AfterClass
+	public void teardown() 
+	{
+		driver.quit();
+	}
+}
+
+_____________________________________________________________________________________________________________________________
+		
+                                                                                   Test-Cases
+
+package com.banking.testcases;
+
+
+import org.testng.annotations.Test;
+
+import com.banking.pageobjects.LoginPage;
+
+public class TC_logintest_001 extends baseclass
+{
+      @Test
+      public void logintest() 
+      {
+    	  driver.get(baseurl);
+    	 logger.info("URL is Open" );
+    	  
+    	  LoginPage lP = new LoginPage(driver);
+    	  
+    	  lP.setup(username);
+    	  
+    	  logger.info("Username is given" );
+    	  
+    	  lP.setpassword(pwds);
+    	  
+    	  logger.info("Password is given");
+    	  
+    	  lP.clicksubmit();
+    	  
+    	  logger.info("Clicked Successfully" );
+      }
+}
+
+_____________________________________________________________________________________________________________________________
+
+
+	
+
+		
+	
+
+
+

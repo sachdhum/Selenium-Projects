@@ -1,0 +1,269 @@
+                                                                              Maven Dependancy
+
+ <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>banking</groupId>
+  <artifactId>banking</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>banking</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+  
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-java</artifactId>
+    <version>3.14.0</version>
+</dependency>
+    
+   <dependency>
+    <groupId>org.testng</groupId>
+    <artifactId>testng</artifactId>
+    <version>6.9.10</version>
+    <scope>test</scope>
+</dependency>
+
+    
+    <dependency>
+    <groupId>com.aventstack</groupId>
+    <artifactId>extentreports</artifactId>
+    <version>4.0.9</version>
+</dependency>
+    
+    <dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi</artifactId>
+    <version>4.1.2</version>
+</dependency>
+    
+    <dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>3.17</version>
+</dependency>
+    
+   <dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>1.2.16</version>
+</dependency>
+
+    
+    <dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.4</version>
+</dependency>
+
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>2.4</version>
+</dependency>
+
+  </dependencies>
+</project>
+
+_____________________________________________________________________________________________________________________________________________________________________________________________
+                                                                                
+                                                                                           Page Objects
+
+package com.banking.pageobjects;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class LoginPage 
+{
+	WebDriver ldriver;
+	
+	public LoginPage(WebDriver rdriver) 
+	{
+		ldriver=rdriver;
+		PageFactory.initElements(rdriver, this);					
+	}
+	
+	@FindBy(name="uid")
+	WebElement txtusername;
+	
+	@FindBy(name="password")
+	WebElement txtpassword;
+
+	
+	@FindBy(name="btnLogin")
+	WebElement btnlogin;
+	
+	public void setup(String uname) 
+	{
+		txtusername.sendKeys(uname);
+	}
+    
+	public void setpassword(String pwd) 
+	{
+		txtpassword.sendKeys(pwd);
+	}
+	
+	public void clicksubmit() 
+	{
+	     btnlogin.click();;
+	}
+
+}
+
+_____________________________________________________________________________________________________________________________________________________________________________________________
+
+
+                                                         Base Class
+
+package com.banking.testcases;
+
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+
+import com.banking.utilities.ReadConfig;
+
+public class baseclass 
+{ 
+	ReadConfig rc= new ReadConfig();
+	
+	public String baseurl=rc.getApplicationURL();		
+	public String username=rc.un();
+	public String pwds=rc.pd(); 
+	
+	public static WebDriver driver;
+	
+	
+          public static Logger logger;
+	
+	@BeforeClass 
+	public void setup() 
+	{
+		System.setProperty("webdriver.chrome.driver", "./Drivers/chromedriver.exe");
+		driver=new ChromeDriver();
+		
+		 logger= Logger.getLogger("banking");
+		PropertyConfigurator.configure("Log4j.properties");
+		
+	}
+	
+	@AfterClass
+	public void teardown() 
+	{
+		driver.quit();
+	}
+}
+
+_____________________________________________________________________________________________________________________________
+		
+                                                                                   Test-Cases
+
+package com.banking.testcases;
+
+
+import org.testng.annotations.Test;
+
+import com.banking.pageobjects.LoginPage;
+
+public class TC_logintest_001 extends baseclass
+{
+      @Test
+      public void logintest() 
+      {
+    	  driver.get(baseurl);
+    	 logger.info("URL is Open" );
+    	  
+    	  LoginPage lP = new LoginPage(driver);
+    	  
+    	  lP.setup(username);
+    	  
+    	  logger.info("Username is given" );
+    	  
+    	  lP.setpassword(pwds);
+    	  
+    	  logger.info("Password is given");
+    	  
+    	  lP.clicksubmit();
+    	  
+    	  logger.info("Clicked Successfully" );
+      }
+}
+
+_____________________________________________________________________________________________________________________________________________________________________________________________
+
+                                                                                                        Utilities
+
+
+package com.banking.utilities;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
+public class ReadConfig 
+{
+	Properties pro;
+	public ReadConfig()
+	{
+		File src=new File("./Configuration/config.properties");
+		try 
+		{
+			FileInputStream fis=new FileInputStream(src);
+			pro=new Properties();
+			pro.load(fis);
+		}catch(Exception e) 
+		{
+			System.out.println("Exception is " + e.getMessage());
+		}
+			
+	}			
+	
+                public String getApplicationURL() 
+{
+	String URL=pro.getProperty("baseurl");
+	return URL;
+}
+                         public String un() 
+{
+	String un=pro.getProperty("username");
+       return un;
+}
+                        public String pd() 
+{
+String Paswords=pro.getProperty("pwds");
+return Paswords;
+
+}
+}
+
+
+
+	
+
+		
+	
+
+
+
+
